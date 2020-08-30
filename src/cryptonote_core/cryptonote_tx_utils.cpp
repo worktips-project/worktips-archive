@@ -999,7 +999,7 @@ namespace cryptonote
     crypto::cn_slow_hash_type cn_type = cn_slow_hash_type::heavy_v1;
 		
     if (hf_version >= network_version_12_checkpointing)
-      cn_type = cn_slow_hash_type::chukwa_slow_hash;
+      cn_type = cn_slow_hash_type::chukwa_slow_hash_v1;
     else if (hf_version >= network_version_11_infinite_staking)
       cn_type = cn_slow_hash_type::turtle_lite_v2;
     else if (hf_version >= network_version_7)
