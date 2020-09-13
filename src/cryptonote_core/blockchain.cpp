@@ -1740,7 +1740,7 @@ bool Blockchain::handle_alternative_block(const block& b, const crypto::hash& id
     difficulty_type current_diff = get_next_difficulty_for_alternative_chain(alt_chain, block_height);
     CHECK_AND_ASSERT_MES(current_diff, false, "!!!!!!! DIFFICULTY OVERHEAD !!!!!!!");
     crypto::hash proof_of_work = null_hash;
-    get_block_longhash(b, proof_of_work, block_height);
+    get_block_longhash(bei.bl, proof_of_work, block_height);
     if(!check_hash(proof_of_work, current_diff))
     {
       MERROR_VER("Block with id: " << id << std::endl << " for alternative chain, does not have enough proof of work: " << proof_of_work << std::endl << " expected difficulty: " << current_diff);
@@ -3741,6 +3741,7 @@ bool Blockchain::handle_block_to_main_chain(const block& bl, const crypto::hash&
 #if defined(PER_BLOCK_CHECKPOINT)
   if (m_db->height() < m_blocks_hash_check.size())
   {
+	auto hash = get_block_hash(bl);
     const auto &expected_hash = m_blocks_hash_check[m_db->height()];
     if (expected_hash != crypto::null_hash)
     {
