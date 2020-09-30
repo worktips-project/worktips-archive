@@ -3741,7 +3741,6 @@ bool Blockchain::handle_block_to_main_chain(const block& bl, const crypto::hash&
 #if defined(PER_BLOCK_CHECKPOINT)
   if (m_db->height() < m_blocks_hash_check.size())
   {
-	auto hash = get_block_hash(bl);
     const auto &expected_hash = m_blocks_hash_check[m_db->height()];
     if (expected_hash != crypto::null_hash)
     {
