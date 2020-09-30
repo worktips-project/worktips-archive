@@ -83,6 +83,9 @@ using namespace epee;
 
 #include "miner.h"
 
+extern "C" void rx_slow_hash_allocate_state();
+extern "C" void rx_slow_hash_free_state();
+
 namespace cryptonote
 {
 
@@ -99,12 +102,13 @@ namespace cryptonote
   }
 
 
-   miner::miner(i_miner_handler* phandler):m_stop(1),
+   miner::miner(i_miner_handler* phandler, Blockchain* pbc):m_stop(1),
     m_template{},
     m_template_no(0),
     m_diffic(0),
     m_thread_index(0),
     m_phandler(phandler),
+	m_pbc(pbc),
     m_height(0),
     m_threads_active(0),
     m_pausers_count(0),
@@ -430,6 +434,7 @@ namespace cryptonote
   {
     boost::interprocess::ipcdetail::atomic_write32(&m_stop, 1);
   }
+  extern "C" void rx_stop_mining(void);
   //-----------------------------------------------------------------------------------------------------
   bool miner::stop()
   {
@@ -462,15 +467,16 @@ namespace cryptonote
     MINFO("Mining has been stopped, " << m_threads.size() << " finished" );
     m_threads.clear();
     m_threads_autodetect.clear();
+	rx_stop_mining();
     return true;
   }
   //-----------------------------------------------------------------------------------------------------
-  bool miner::find_nonce_for_given_block(block& bl, const difficulty_type& diffic, uint64_t height)
+  bool miner::find_nonce_for_given_block(const Blockchain *pbc, block& bl, const difficulty_type& diffic, uint64_t height)
   {
     for(; bl.nonce != std::numeric_limits<uint32_t>::max(); bl.nonce++)
     {
       crypto::hash h;
-      get_block_longhash(bl, h, height);
+      get_block_longhash(pbc, bl, h, height, tools::get_max_concurrency());
 
       if(check_hash(h, diffic))
       {
@@ -595,6 +601,7 @@ namespace cryptonote
       ++m_hashes;
       ++m_total_hashes;
     }
+	rx_slow_hash_free_state();
     MGINFO("Miner thread stopped ["<< th_local_index << "]");
     --m_threads_active;
 #if defined(WORKTIPS_ENABLE_INTEGRATION_TEST_HOOKS)
