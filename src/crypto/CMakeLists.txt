@@ -57,6 +57,7 @@ set(crypto_sources
   rx-slow-hash.c
   tree-hash.c)
 
+include_directories(${RANDOMX_INCLUDE})
 include_directories(${ARGON2_INCLUDE})
 include_directories(${CMAKE_SOURCE_DIR}/external/argon2/include)
 
@@ -93,6 +94,7 @@ target_link_libraries(cncrypto
   PUBLIC
     epee
     argon2
+	randomx
     ${Boost_SYSTEM_LIBRARY}
     ${SODIUM_LIBRARIES}
   PRIVATE
